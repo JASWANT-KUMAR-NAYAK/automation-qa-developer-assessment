@@ -1,0 +1,412 @@
+{
+  "name": "GitHub Morning Brief Automation",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "hours"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        -336,
+        -32
+      ],
+      "id": "d6e7ed4e-77b0-4809-9bb8-8d4d32fbc29b",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "url": "https://api.github.com/search/repositories",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "q",
+              "value": "topic:artificial-intelligence"
+            },
+            {
+              "name": "sort",
+              "value": "stars"
+            },
+            {
+              "name": "order",
+              "value": "desc"
+            },
+            {
+              "name": "per_page",
+              "value": "10"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        -80,
+        -32
+      ],
+      "id": "1de40e46-ec48-42bd-883c-ce8e1b409247",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "jsCode": "const response = $input.first().json;\n\nconst repositories = response.items || [];\n\nconst topRepositories = repositories\n  .sort((a, b) => b.stargazers_count - a.stargazers_count)\n  .slice(0, 5);\n\nreturn topRepositories.map(repo => ({\n  json: {\n    id: repo.id,\n    repoName: repo.full_name,\n    description: repo.description,\n    stars: repo.stargazers_count,\n    language: repo.language,\n    url: repo.html_url,\n    owner: repo.owner.login\n  }\n}));"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        176,
+        -32
+      ],
+      "id": "c330eef1-e66c-4197-9597-3f5572f01411",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "url": "={{\n  'https://api.github.com/repos/' + $json.repoName + '/readme'\n}}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        720,
+        -64
+      ],
+      "id": "2ca1794b-6fa0-4755-854d-127720fc74ed",
+      "name": "HTTP Request1",
+      "executeOnce": false,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 4
+          },
+          "conditions": [
+            {
+              "id": "6e72db90-601c-40c4-a796-cd2c40a09b22",
+              "leftValue": "={{ $json.stars }}",
+              "rightValue": 1000,
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.4,
+      "position": [
+        480,
+        -48
+      ],
+      "id": "1337cc0a-4efc-43f9-883f-43316731dcbd",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineByPosition",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        896,
+        96
+      ],
+      "id": "7ff92d35-a9ea-426d-9b19-098e89de6220",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "jsCode": "const repositories = $input.all();\n\nreturn repositories.map(item => {\n  const data = item.json;\n\n  const repository = data.repoName ||\n    data.repository ||\n    `${data.owner}/${data.name === 'README.md' ? '' : data.name}`.replace(/\\/$/, '');\n\n  return {\n    json: {\n      repository: String(repository).trim(),\n      description: String(data.description || 'No description available').trim(),\n      stars: Number(data.stars || 0),\n      language: String(data.language || 'Not specified').trim(),\n      repository_url: `https://github.com/${repository}`,\n      readme_url: data.html_url || null,\n      readme_size_bytes: Number(data.size || 0),\n      readme_status: data.html_url ? 'Available' : 'Unavailable',\n      readme_error: data.error?.message || '',\n      priority: Number(data.stars || 0) > 1000 ? 'High' : 'Normal',\n      generated_at: new Date().toISOString()\n    }\n  };\n});"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1056,
+        -80
+      ],
+      "id": "beaba10d-163b-42a2-b70c-6fdb1a320bb8",
+      "name": "Code in JavaScript1"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1VkYqrlOOmM-7Alo0EoDvwHywIiInzp3Utz02LNzGCBo",
+          "mode": "list",
+          "cachedResultName": "GitHub Morning Brief",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1VkYqrlOOmM-7Alo0EoDvwHywIiInzp3Utz02LNzGCBo/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1VkYqrlOOmM-7Alo0EoDvwHywIiInzp3Utz02LNzGCBo/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "repository": "={{$json.repository}}",
+            "description": "={{$json.description}}",
+            "stars": "=\t{{$json.stars}}\t",
+            "language": "={{$json.language}}",
+            "repository_url": "=\t{{$json.repository_url}}",
+            "readme_url": "=\t{{$json.readme_url}}",
+            "readme_size_bytes": "={{$json.readme_size_bytes}}",
+            "readme_status": "=\t{{$json.readme_status}}",
+            "readme_error": "=\t{{$json.readme_error}}",
+            "priority": "=\t{{$json.priority}}",
+            "generated_at": "=\t{{$json.generated_at}}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "repository",
+              "displayName": "repository",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "description",
+              "displayName": "description",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "stars",
+              "displayName": "stars",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "language",
+              "displayName": "language",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "repository_url",
+              "displayName": "repository_url",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "readme_url",
+              "displayName": "readme_url",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "readme_size_bytes",
+              "displayName": "readme_size_bytes",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "readme_status",
+              "displayName": "readme_status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "readme_error",
+              "displayName": "readme_error",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "priority",
+              "displayName": "priority",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "generated_at",
+              "displayName": "generated_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1280,
+        -80
+      ],
+      "id": "adc99f63-cd23-42bd-bc62-7c683e1586fc",
+      "name": "Append row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "obFU0MkOAZRqxwyx",
+          "name": "Google Sheets account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request1": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript1": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "a5cbb8c5-2e85-4912-b885-d86305f89568",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "fc8ab5e91bcc8751c47ebed0a62af1de747fb3b3bb14b3e73647366517c470a4"
+  },
+  "nodeGroups": [],
+  "id": "gaTyxfs4LGVp1PO7",
+  "tags": []
+}
