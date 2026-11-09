@@ -1,21 +1,32 @@
-# Task 2 — GitHub Morning Brief Automation
+GitHub Morning Brief Automation
+Overview
+An n8n workflow that automatically discovers popular AI-related GitHub repositories, enriches them with README information, and records the results in Google Sheets.
 
-An n8n workflow that discovers popular AI-related GitHub repositories, retrieves README metadata, and stores the results in Google Sheets.
+Workflow
+Schedule Trigger: Starts the workflow hourly.
+GitHub API: Searches repositories under the artificial-intelligence topic, sorted by stars.
+Code Node: Sorts the results and selects the top five repositories.
+IF Node: Checks whether repository stars exceed 1,000.
+README API: Retrieves README metadata for qualifying repositories.
+Merge Node: Combines repository details with README information.
+Code Node: Formats the final records, including repository URLs, README status, priority, and timestamp.
+Google Sheets: Appends the five records to the GitHub Morning Brief spreadsheet.
+Error Handling
+The README request uses the Continue (using regular output) error-handling option. This allows the workflow to continue when README retrieval fails, rather than stopping the entire execution.
 
-## Workflow components
+Output
+The Google Sheet stores: - Repository name and description - Stars and programming language - Repository and README URLs - README size and availability status - Priority and generation timestamp
 
-- Schedule Trigger — hourly execution
-- GitHub REST API — repository search
-- Code node — selects top five repositories
-- IF node — checks stars greater than 1,000
-- HTTP Request — retrieves README metadata
-- Merge and Code nodes — combine and format data
-- Google Sheets — stores the final results
+Configuration
+Platform: n8n
+Data source: GitHub REST API
+Output: Google Sheets
+Authentication: Google Sheets OAuth2 credentials configured in n8n
+Schedule: Hourly
+Testing
+The workflow was executed successfully. The latest recorded execution completed in approximately 6.07 seconds and appended five repository records to Google Sheets.
 
-## Error Handling
-
-The README request continues using regular output when an API request fails.
-
-## Deliverables
-
-See the workflow JSON and screenshots in this folder.
+Files
+GitHub_Morning_Brief_Automation.json --- Workflow export
+Task2_Workflow_Canvas.png --- Workflow canvas screenshot
+Task2_Successful_Execution.png --- Successful execution screenshot
