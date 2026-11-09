@@ -1,55 +1,57 @@
-# GitHub Morning Brief Automation
+# Automation & QA Developer Assessment
+
+**Candidate:** Jaswant Kumar Nayak
 
 ## Overview
 
-An n8n workflow that automatically discovers popular AI-related GitHub
-repositories, enriches them with README information, and records the
-results in Google Sheets.
+This repository contains my Automation & QA Developer assessment, covering web application testing, bug identification, root-cause analysis, API integration, and workflow automation.
 
-## Workflow
+## Task 1 — Web Application QA
 
-1.  **Schedule Trigger:** Starts the workflow hourly.
-2.  **GitHub API:** Searches repositories under the
-    `artificial-intelligence` topic, sorted by stars.
-3.  **Code Node:** Sorts the results and selects the top five
-    repositories.
-4.  **IF Node:** Checks whether repository stars exceed 1,000.
-5.  **README API:** Retrieves README metadata for qualifying
-    repositories.
-6.  **Merge Node:** Combines repository details with README information.
-7.  **Code Node:** Formats the final records, including repository URLs,
-    README status, priority, and timestamp.
-8.  **Google Sheets:** Appends the five records to the
-    `GitHub Morning Brief` spreadsheet.
+Tested the React Redux RealWorld application locally and documented five issues.
 
-## Error Handling
+**Coverage:**
+- Manual UI testing
+- Browser network inspection
+- Source-code review
+- Bug reproduction and severity classification
+- Root-cause analysis
 
-The README request uses the **Continue (using regular output)**
-error-handling option. This allows the workflow to continue when README
-retrieval fails, rather than stopping the entire execution.
+**Deliverable:** [Task 1 QA Report](Task-1/Task1_QA_Report_Jaswant_Kumar_Nayak.pdf)
 
-## Output
+## Task 2 — GitHub Morning Brief Automation
 
-The Google Sheet stores: - Repository name and description - Stars and
-programming language - Repository and README URLs - README size and
-availability status - Priority and generation timestamp
+Built an n8n workflow that retrieves popular AI-related GitHub repositories, enriches them with README metadata, and stores the results in Google Sheets.
 
-## Configuration
+**Workflow components:**
+- Schedule Trigger
+- GitHub REST API
+- JavaScript Code nodes
+- IF condition
+- README API enrichment
+- Merge node
+- Google Sheets output
+- Error handling
 
--   Platform: n8n
--   Data source: GitHub REST API
--   Output: Google Sheets
--   Authentication: Google Sheets OAuth2 credentials configured in n8n
--   Schedule: Hourly
+**Deliverables:** [Task 2 Workflow and Evidence](Task-2/README.md)
 
-## Testing
+## Documentation
 
-The workflow was executed successfully. The latest recorded execution
-completed in approximately 6.07 seconds and appended five repository
-records to Google Sheets.
+[View Assessment Documentation](Documentation/Assessment_Work_Documentation.pdf)
 
-## Files
+## Technologies Used
 
--   `GitHub_Morning_Brief_Automation.json` --- Workflow export
--   `Task2_Workflow_Canvas.png` --- Workflow canvas screenshot
--   `Task2_Successful_Execution.png` --- Successful execution screenshot
+- JavaScript
+- n8n
+- GitHub REST API
+- Google Sheets
+- React / Redux
+- Browser Developer Tools
+- GitHub
+
+## Repository Structure
+
+- `Documentation/` — Brief assessment documentation
+- `Task-1/` — QA report and testing findings
+- `Task-2/` — n8n workflow, export, screenshots and technical documentation
+
